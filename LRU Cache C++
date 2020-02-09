@@ -1,0 +1,146 @@
+struct Node {
+	int val;
+	int key;
+	Node* next;
+	Node* prev;
+	Node(int a,int b) { key=a; val = b; next = NULL; prev = NULL; }
+};
+class Queue {
+private:
+	Node* Top;
+	Node* Tail;
+	int size;
+public:
+	Queue() { this->Top == NULL; this->Tail = Top; size = 0; }
+	~Queue();
+	void Push(int k,int v);
+	void Pop();
+	Node* IsTop(); 
+	Node* IsTail();
+	void MoveToTop(Node*);
+	bool IsEmpty();
+	const int GetSize();
+};
+Queue::~Queue()
+{
+	Node* current = Top;
+	Node* next = NULL;
+	while (current != NULL) {
+		next = current->next;
+		delete current;
+		current = next;
+	}
+}
+void Queue::Push(int k,int v)
+{
+	Node* curr = new Node(k,v);
+	if (IsEmpty())
+	{
+		Top = curr;
+		Tail = Top;
+	}
+	else
+	{
+		Top->prev = curr;
+		curr->next = Top;
+		Top = curr;
+	}
+	size++;
+}
+void Queue::Pop()
+{
+	if (!IsEmpty())
+	{
+		Tail = Tail->prev;
+		Tail->next = NULL;
+	}
+	size--;
+}
+Node* Queue::IsTop()
+{
+	return Top;
+}
+Node* Queue::IsTail()
+{
+	return Tail;
+}
+void Queue::MoveToTop(Node*curr)
+{
+	if (curr!=Top)
+	{
+		curr->prev->next = curr->next;
+		if (curr != Tail)
+		{
+			curr->next->prev = curr->prev;
+		}
+		else
+		{
+			Tail = curr->prev;
+		}
+		Top->prev = curr;
+		curr->next = Top;
+		Top = curr;
+		Top->prev = NULL;
+	}
+}
+bool Queue::IsEmpty()
+{
+	if (size == 0)
+	{
+		return true;
+	}
+	return false;
+}
+const int Queue::GetSize()
+{
+	return size;
+}
+class LRUCache {
+public:
+	explicit LRUCache(int);
+	~LRUCache() {};
+	int get(int);
+	void set(int, int);
+	const int Capacity();
+private:
+	using UniqueQueue=std::unique_ptr<Queue>;
+	UniqueQueue values;
+	int LRUsize;
+	unordered_map<int,Node*>KeyToNode;
+};
+LRUCache::LRUCache(int capacity) {
+	this->LRUsize =capacity;
+	this->values = make_unique<Queue>();
+}
+int LRUCache::get(int key) {
+	auto it = KeyToNode.find(key);
+	if (it!= KeyToNode.end())
+	{
+		values->MoveToTop(it->second);
+		return it->second->val;
+	}
+	return -1;
+}
+void LRUCache::set(int key, int value) {
+	auto it = KeyToNode.find(key);
+	if (it!=KeyToNode.end())
+	{
+		it->second->val = value;
+		values->MoveToTop(it->second);
+	}
+	else
+	{
+		values->Push(key, value);
+		KeyToNode.emplace(key, values->IsTop());
+		if (values->GetSize()>Capacity())
+		{
+			int kill = values->IsTail()->key;
+			values->Pop();
+			KeyToNode.erase(kill);
+		}
+	}
+}
+const int LRUCache::Capacity()
+{
+	return LRUsize;
+}
