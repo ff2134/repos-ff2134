@@ -1,0 +1,43 @@
+int numDecodings(std::string A) {
+  bool second = false;
+	int count = 1;
+	int total = 1;
+	for (size_t i = 0; i < A.length(); i++)
+	{
+		if (!second)
+		{
+			if (A[i]>48&&A[i]<51){second = true;}
+			else if (A[i] == 48) { return 0; }
+		}
+		else
+		{
+			if (A[i] > 48 && A[i] < 51)
+			{
+				second = true; count++;
+			}
+			else if (A[i] == 48) { count--; }
+			else
+			{
+				switch (A[i-1])
+				{
+				case '1':
+					count++;
+					break;
+				case '2':
+					if (A[i] < 55) { count++;}
+					break;
+				default:
+					break;
+				}
+				second = false;
+			}
+		}
+		if (i == A.length() - 1) { second = false; }
+		if (!second)
+		{
+			if (count > 1) { total *= count; }
+			count = 1;
+		}
+	}
+	return total;
+}
