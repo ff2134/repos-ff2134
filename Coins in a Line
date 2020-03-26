@@ -1,0 +1,47 @@
+There are A coins (Assume A is even) in a line.
+
+Two players take turns to take a coin from one of the ends of the line until there are no more coins left.
+
+The player with the larger amount of money wins.
+
+Assume that you go first.
+
+Return the maximum amount of money you can win.
+
+Non DP method
+int decide(std::vector<int>& A, int& start, int& end) {
+    int ans = 0;
+    if (A[start + 1] - A[start]+ A[end] < A[end - 1] - A[end]+ A[start])
+    {
+        ans = start;
+        start++;
+    }
+    else {
+        ans = end;
+        end--;
+    }
+    return ans;
+}
+int maxcoin(std::vector<int>& A) {
+    int total1 = 0;
+    int total2 = 0;
+    int start = 0;
+    bool turn = 1;
+    int end = A.size() - 1;
+    while (start < end)
+    {
+        if (turn)
+        {
+            total1 += A[decide(A, start, end)];
+            turn = 0;
+        }
+        else
+        {
+            total2 += A[decide(A, start, end)];
+            turn = 1;
+        }
+    }
+    total2 += A[end];
+    if (total1 > total2) { return total1; }
+    else { return 0; }
+}
